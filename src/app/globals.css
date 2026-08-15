@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta Ágata: fondo casi blanco con tinte rosa, tinta casi negra y el
+     magenta de marca como único acento. */
+  --color-paper: #faf7f8;
+  --color-surface: #ffffff;
+  --color-ink: #121013;
+  --color-muted: #6b626a;
+  --color-faint: #8a7c86;
+  --color-line: #eae2e7;
+  --color-wash: #f1ebee;
+
+  /* El magenta hace de acento y de CTA. Con texto blanco da 6.4:1, así que
+     los botones sólidos van en blanco; sobre papel se usa para texto grande
+     y detalles. La variante clara solo sirve sobre fondo oscuro. */
+  --color-brand: #b01a80;
+  --color-brand-soft: #e24fae;
+  --color-brand-deep: #8c1265;
+
+  /* El rojo se reserva para lo irreversible: usarlo en otra cosa le quita el
+     significado. Los CTA de WhatsApp van en magenta, como manda el diseño. */
+  --color-danger: #b42318;
+
+  --font-sans: var(--font-jost), ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+  --font-serif: var(--font-bodoni), "Bodoni MT", Didot, Georgia, serif;
+  --font-script: var(--font-petit), "Segoe Script", cursive;
+
+  --animate-marquee: agataMarquee 26s linear infinite;
+  --animate-rise: agataRise 0.8s ease both;
+}
+
+@keyframes agataMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes agataRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ponytail: solo tema claro. El monocromo claro es el encargo; el modo
+   oscuro se agrega duplicando estas variables bajo prefers-color-scheme. */
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+/* El header pegajoso mide ~72px: sin esto un enlace #ancla deja el título
+   escondido debajo. */
+[id] {
+  scroll-margin-top: 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@utility label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@utility field {
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-brand);
+  }
+}
+
+/* Píldora de CTA del diseño: mismo tamaño y tracking en toda la página. */
+@utility pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  border-radius: 999px;
+  padding: 1rem 2.125rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
