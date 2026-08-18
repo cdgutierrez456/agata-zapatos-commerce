@@ -1,11 +1,12 @@
 import Link from "next/link";
 
 export const MENSAJES: Record<string, string> = {
-  creado: "Producto creado.",
+  creado: "Producto creado. Abajo están el stock y las imágenes para terminarlo.",
   datos: "Cambios guardados.",
   imagen: "Imagen agregada.",
   stock: "Stock actualizado.",
   creada: "Categoría creada.",
+  eliminada: "Categoría eliminada.",
 };
 
 // Modal a pantalla completa, sin sweetalert ni ninguna otra dependencia: el

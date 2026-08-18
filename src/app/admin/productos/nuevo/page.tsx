@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { createProduct } from "../../actions";
 import { ProductFields } from "../fields";
 import { Alerta } from "../../alerta";
+import { Enviar } from "../../enviar";
 
 export default async function NuevoProducto({ searchParams }: PageProps<"/admin/productos/nuevo">) {
   const { error } = await searchParams;
@@ -34,13 +35,22 @@ export default async function NuevoProducto({ searchParams }: PageProps<"/admin/
           .
         </p>
       ) : (
-        <form action={createProduct} className="mt-8">
+        <form
+          action={createProduct}
+          className="mt-8"
+          // Al volver aquí después de crear un producto, el navegador restauraba
+          // lo escrito y el formulario aparecía sucio. Con esto empieza vacío.
+          autoComplete="off"
+        >
           <ProductFields categories={categories} />
-          <button className="mt-8 bg-ink px-6 py-2.5 text-xs tracking-[0.14em] text-paper uppercase transition-opacity hover:opacity-80">
+          <Enviar
+            cargando="Creando producto…"
+            className="mt-8 bg-ink px-6 py-2.5 text-xs tracking-[0.14em] text-paper uppercase transition-opacity hover:opacity-80"
+          >
             Crear y continuar
-          </button>
+          </Enviar>
           <p className="mt-3 text-xs text-faint">
-            Las imágenes y las tallas se agregan en el siguiente paso.
+            Al crearlo pasas directo a su ficha, con el stock y las imágenes listos para llenar.
           </p>
         </form>
       )}

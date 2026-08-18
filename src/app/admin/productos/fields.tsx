@@ -1,3 +1,5 @@
+"use client";
+
 type Category = { id: string; name: string };
 type Product = {
   name: string;
@@ -8,6 +10,15 @@ type Product = {
   active: boolean;
 } | null;
 
+// El aviso nativo del navegador dice "Completa este campo" sin decir cuál es,
+// y en un formulario de seis campos eso es una adivinanza.
+const NOMBRES: Record<string, string> = {
+  name: "Nombre",
+  category_id: "Categoría",
+  price: "Precio",
+  discount_percent: "Descuento (%)",
+};
+
 export function ProductFields({
   categories,
   product,
@@ -16,7 +27,20 @@ export function ProductFields({
   product?: Product;
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div
+      className="grid gap-4 sm:grid-cols-2"
+      // `invalid` no burbujea en el DOM, pero React sí lo propaga por el árbol:
+      // un solo par de handlers le pone nombre a todos los campos de abajo.
+      onInvalid={(e) => {
+        const campo = e.target as HTMLInputElement;
+        if (!campo.value.trim())
+          campo.setCustomValidity(
+            `Falta llenar el campo «${NOMBRES[campo.name] ?? campo.name}».`,
+          );
+      }}
+      // Sin esto el campo se queda inválido para siempre, aunque lo llenes.
+      onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")}
+    >
       <label className="sm:col-span-2">
         <span className="label">Nombre</span>
         <input className="field mt-1.5" name="name" defaultValue={product?.name} required />

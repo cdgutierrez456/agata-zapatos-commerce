@@ -12,6 +12,7 @@ import {
 } from "../../actions";
 import { ProductFields } from "../fields";
 import { Alerta, MENSAJES } from "../../alerta";
+import { Enviar } from "../../enviar";
 
 export default async function EditarProducto({
   params,
@@ -102,7 +103,14 @@ export default async function EditarProducto({
                   defaultValue={v.position}
                   title="Orden"
                 />
-                <button className="label hover:text-ink">Guardar</button>
+                {/* Botón sólido: en gris de "label" se leía como texto muerto
+                    y el stock se quedaba sin guardar. */}
+                <Enviar
+                  cargando="Guardando…"
+                  className="bg-ink px-4 py-2.5 text-xs tracking-[0.14em] text-paper uppercase transition-opacity hover:opacity-80"
+                >
+                  Guardar
+                </Enviar>
                 <button
                   formAction={deleteVariant}
                   className="label ml-auto hover:text-ink"
@@ -125,7 +133,12 @@ export default async function EditarProducto({
             type="number"
             defaultValue={variants.length}
           />
-          <button className="label hover:text-ink">+ Agregar talla</button>
+          <Enviar
+            cargando="Agregando…"
+            className="border border-ink px-4 py-2.5 text-xs tracking-[0.14em] uppercase transition-colors hover:bg-ink hover:text-paper"
+          >
+            + Agregar talla
+          </Enviar>
         </form>
       </section>
 
@@ -160,9 +173,12 @@ export default async function EditarProducto({
           />
           {/* Botón sólido, no un enlace gris: es un formulario aparte del de
               arriba y "Guardar cambios" NO sube la imagen. */}
-          <button className="bg-ink px-5 py-2.5 text-xs tracking-[0.14em] text-paper uppercase transition-opacity hover:opacity-80">
+          <Enviar
+            cargando="Subiendo imagen…"
+            className="bg-ink px-5 py-2.5 text-xs tracking-[0.14em] text-paper uppercase transition-opacity hover:opacity-80"
+          >
             Subir imagen
-          </button>
+          </Enviar>
           <span className="w-full text-xs text-faint">
             Elige el archivo y pulsa <strong className="font-medium">Subir imagen</strong>. Máx. 8
             MB: una foto de celular sin comprimir suele pasarse. Sube WebP de ~1200px.

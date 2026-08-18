@@ -54,9 +54,28 @@ export async function createCategory(form: FormData) {
 }
 
 export async function deleteCategory(form: FormData) {
+  const id = String(form.get("id"));
   const db = await supabase();
-  await db.from("categories").delete().eq("id", String(form.get("id")));
+
+  // La FK es `on delete set null`: borrar la categoría no falla, deja los
+  // productos sin categoría y desaparecidos de la tienda. Se pregunta antes.
+  const { count } = await db
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("category_id", id);
+
+  if (count) {
+    const plural = count === 1 ? "" : "s";
+    redirect(
+      `/admin/categorias?error=${encodeURIComponent(
+        `No se puede eliminar una categoría que tiene productos. Esta tiene ${count} producto${plural} asociado${plural}: muévelos a otra categoría o elimínalos primero.`,
+      )}`,
+    );
+  }
+
+  await db.from("categories").delete().eq("id", id);
   refresh();
+  redirect("/admin/categorias?ok=eliminada");
 }
 
 // -------------------------------------------------------------- producto
@@ -73,12 +92,24 @@ function productFields(form: FormData) {
   };
 }
 
+// Los `required` del formulario son del navegador: se saltan con curl o con JS
+// desactivado. Se revisa aquí otra vez, y diciendo cuál campo falta.
+function campoFaltante(form: FormData) {
+  if (!text(form, "name")) return "Nombre";
+  if (!text(form, "category_id")) return "Categoría";
+  if (!text(form, "price")) return "Precio";
+  return null;
+}
+
+const faltaMsg = (campo: string) =>
+  encodeURIComponent(`Falta llenar el campo «${campo}»: sin eso el producto no se puede guardar.`);
+
 export async function createProduct(form: FormData) {
+  const falta = campoFaltante(form);
+  if (falta) redirect(`/admin/productos/nuevo?error=${faltaMsg(falta)}`);
+
   const db = await supabase();
   const fields = productFields(form);
-  // El `required` del select es del navegador y se salta con curl.
-  if (!fields.category_id)
-    redirect(`/admin/productos/nuevo?error=${encodeURIComponent("Elige una categoría.")}`);
 
   const { data, error } = await db
     .from("products")
@@ -92,15 +123,18 @@ export async function createProduct(form: FormData) {
   await db.from("variants").insert({ product_id: data.id, stock: 0 });
 
   refresh();
-  redirect("/admin?ok=creado");
+  // A la ficha, no a la lista: el stock y las imágenes son el siguiente paso
+  // obligatorio de un producto nuevo y viven ahí. Mandarlo a /admin obligaba a
+  // buscar el producto recién creado para poder terminarlo.
+  redirect(`/admin/productos/${data.id}?ok=creado`);
 }
 
 export async function updateProduct(form: FormData) {
   const id = String(form.get("id"));
-  const fields = productFields(form);
-  if (!fields.category_id)
-    redirect(`/admin/productos/${id}?error=${encodeURIComponent("Elige una categoría.")}`);
+  const falta = campoFaltante(form);
+  if (falta) redirect(`/admin/productos/${id}?error=${faltaMsg(falta)}`);
 
+  const fields = productFields(form);
   const db = await supabase();
   const { error } = await db.from("products").update(fields).eq("id", id);
   refresh();
